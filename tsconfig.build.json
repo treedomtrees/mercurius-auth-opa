@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./lib",
+    "sourceMap": true,
+    "declaration": true,
+    "incremental": false
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "ts-node": {
+    "files": true
+  }
+}

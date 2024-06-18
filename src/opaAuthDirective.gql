@@ -1,0 +1,1 @@
+directive @opa(path: String!) on OBJECT | FIELD_DEFINITION

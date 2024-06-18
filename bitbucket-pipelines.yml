@@ -1,0 +1,40 @@
+image: node:20
+
+pipelines:
+  pull-requests:
+    '**':
+      - parallel:
+        - step:
+            name: Test
+            caches:
+              - node
+            script:
+              - npm install
+              - npm run test
+        - step:
+            name: Lint Workspaces
+            caches:
+              - node
+            script:
+              - npm install
+              - npm run lint
+
+  branches:
+    master:
+      - step:
+          name: Install
+          caches: 
+            - node
+          script:
+            - npm install
+
+      - step:
+          name: Deploy package
+          caches:
+           - node
+          script:
+            - npm run build
+            - pipe: atlassian/npm-publish:0.3.2
+              variables:
+                NPM_TOKEN: $TREEDOM_NPM_TOKEN
+                DEBUG: 'true'

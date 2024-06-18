@@ -1,0 +1,23 @@
+name: Publish Package to npmjs
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: 'https://registry.npmjs.org/'
+          node-version: '20.x'
+      - run: npm install
+      - run: npm run build
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TREEDOM_NPMJS_TOKEN }}

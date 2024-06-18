@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2021"],
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "outDir": "./test/dist",
+    "forceConsistentCasingInFileNames": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "incremental": true
+  },
+  "include": [
+    "./**/*"
+  ]
+}

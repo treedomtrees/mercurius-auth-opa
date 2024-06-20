@@ -9,7 +9,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
-    "incremental": true
+    "incremental": true,
   },
   "include": [
     "./**/*"

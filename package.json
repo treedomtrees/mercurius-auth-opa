@@ -13,6 +13,12 @@
     "type": "git",
     "url": "git+https://github.com/treedomtrees/mercurius-auth-opa.git"
   },
+  "keywords": [
+    "mercurius",
+    "auth",
+    "opa",
+    "graphql"
+  ],
   "type": "commonjs",
   "author": "Edoardo Viviani <e.viviani@treedom.net",
   "license": "MIT",
@@ -24,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "20.14.0",
+    "@types/sinon": "17.0.3",
     "@typescript-eslint/eslint-plugin": "7.12.0",
     "@typescript-eslint/parser": "7.12.0",
     "borp": "0.14.0",
@@ -38,6 +45,7 @@
     "pino": "9.1.0",
     "pino-pretty": "11.1.0",
     "prettier": "3.3.0",
+    "sinon": "18.0.0",
     "typescript": "5.4.5",
     "undici": "6.18.2"
   },

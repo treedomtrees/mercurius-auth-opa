@@ -1,1 +1,2 @@
-directive @opa(path: String!) on OBJECT | FIELD_DEFINITION
+scalar OpaOptions
+directive @opa(path: String!, options: OpaOptions) on OBJECT | FIELD_DEFINITION

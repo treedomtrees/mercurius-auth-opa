@@ -16,7 +16,7 @@ const schema = `#graphql
   ${opaAuthDirective}
 
   type Query {
-    ping(message: String!): String! @opa(path: "my/opa/policy")
+    ping(message: String!): String! @opa(path: "my/opa/policy", options: { ... })
   }`
 
 app.register(mercurius, {
@@ -40,6 +40,7 @@ This plugin queries OPA providing the following properties as `input`
 - `headers` the Fastify headers object
 - `parent` the Mercurius parent object of the field/object which got queried
 - `args` the Mercurius args object of the field/object which got queried
+- `options` static untyped properties defined in the directive arguments _(optional)_
 
 ### Example Rego Policy
 
@@ -68,7 +69,8 @@ allow if {
 The authorization directive can be customized registering a custom one in the schema and specifying its name in the plugin configuration
 
 ```graphql
-directive @policy(path: String!) on OBJECT | FIELD_DEFINITION
+scalar OpaOptions
+directive @policy(path: String!, options: OpaOptions) on OBJECT | FIELD_DEFINITION
 ```
 
 ```typescript

@@ -1,4 +1,4 @@
-import { before, beforeEach, mock, test } from 'node:test'
+import { beforeEach, test } from 'node:test'
 import { deepStrictEqual } from 'node:assert'
 import fastify from 'fastify'
 import { testLogger } from './helpers/testLogger'
@@ -7,43 +7,13 @@ import mercurius from 'mercurius'
 import { createMercuriusTestClient } from 'mercurius-integration-testing'
 import fs from 'node:fs'
 import path from 'node:path'
-import { MockAgent, setGlobalDispatcher, fetch } from 'undici'
+import { MockAgent, setGlobalDispatcher } from 'undici'
 import sinon from 'sinon'
 import { MockInterceptor } from 'undici-types/mock-interceptor'
 
 const mockAgent = new MockAgent()
 mockAgent.disableNetConnect()
 setGlobalDispatcher(mockAgent)
-
-before(() => {
-  // Replacing node builtin fetch with undici to be able to use undici's mock functionality
-  mock.method(global, 'fetch', async (request: Request) => {
-    /*
-     * Styra's OPA client validates the response type with Zod, ensuring it is an instance of the node built-in Response
-     * object.
-     * However, undici's Response is not actually as an instance of the node built-in Response, which causes
-     * Zod to raise an error. This workaround is implemented to satisfy Zod's requirements while still utilizing
-     * undici's mock functionality in this test suite
-     */
-    // eslint-disable-next-line
-    // @ts-ignore
-    return fetch(request.url, {
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-      body: await request.body
-        .getReader()
-        .read()
-        .then(({ value }) => Buffer.from(value).toString('utf-8')),
-    }).then(
-      (response) =>
-        new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-        })
-    )
-  })
-})
 
 beforeEach(() => {
   mockAgent.removeAllListeners()
@@ -68,7 +38,9 @@ ping(message: String!): String!
   })
 
   app.register(opaAuthPlugin, {
-    opaEndpoint: 'http://opa.test:3000',
+    opaOptions: {
+      url: 'http://opa.test:3000',
+    },
   })
 
   const testClient = createMercuriusTestClient(app)
@@ -98,7 +70,9 @@ ping(message: String!): String! @opa(path: "query/ping", options: { bar: "foo", 
   })
 
   app.register(opaAuthPlugin, {
-    opaEndpoint: 'http://opa.test:3000',
+    opaOptions: {
+      url: 'http://opa.test:3000',
+    },
   })
 
   const opaPolicyMock = sinon
@@ -157,7 +131,9 @@ type Query {
   })
 
   app.register(opaAuthPlugin, {
-    opaEndpoint: 'http://opa.test:3000',
+    opaOptions: {
+      url: 'http://opa.test:3000',
+    },
   })
 
   mockAgent

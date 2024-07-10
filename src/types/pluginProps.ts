@@ -1,10 +1,13 @@
 import type { AuthContextHandler } from 'mercurius-auth'
 import type { MercuriusContext } from 'mercurius'
-import type { Options } from '@styra/opa'
+import { OpenPolicyAgentClientProps } from './openPolicyAgentClientProps'
+import { Cache } from './cache'
 
-export type PluginProps<TContext = MercuriusContext> = {
-  opaEndpoint?: string
-  opaOptions?: Options
+export type PluginProps<
+  TContext = MercuriusContext,
+  TCache extends Cache = Cache,
+> = {
+  opaOptions?: OpenPolicyAgentClientProps<TCache>
 
   /**
    * @default opa

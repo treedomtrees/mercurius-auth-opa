@@ -1,14 +1,16 @@
 import type { FastifyInstance, FastifyPluginCallback } from 'fastify'
-import type { PluginProps } from './types/pluginProps'
+import type { Cache, PluginProps } from './types'
 import fp from 'fastify-plugin'
-import { OPAClient } from '@styra/opa'
 import mercuriusAuth, { MercuriusAuthOptions } from 'mercurius-auth'
 import mercurius from 'mercurius'
 import { parseDirectiveArgumentsAST } from './parseDirectiveArgumentsAST'
+import { OpenPolicyAgentClient } from './OpenPolicyAgentClient'
 
 export const opaAuthPlugin: FastifyPluginCallback<PluginProps> = fp(
   async (app: FastifyInstance, props: PluginProps) => {
-    const opa = new OPAClient(props.opaEndpoint, props.opaOptions)
+    const opa = new OpenPolicyAgentClient(props.opaOptions)
+
+    app.decorate('opa', opa)
 
     app.register<MercuriusAuthOptions>(mercuriusAuth, {
       /**
@@ -19,14 +21,14 @@ export const opaAuthPlugin: FastifyPluginCallback<PluginProps> = fp(
       /**
        * Validate directive
        */
-      async applyPolicy(ast, parent, args, context, info) {
+      async applyPolicy(ast, parent, args, context) {
         const { path, options } = parseDirectiveArgumentsAST(ast.arguments) as {
           path: string
           options?: object
         }
 
-        const allowed = await opa
-          .evaluate(path, {
+        const allowed = await app.opa
+          .query(path, {
             headers: context.reply.request.headers,
             parent,
             args,
@@ -40,7 +42,7 @@ export const opaAuthPlugin: FastifyPluginCallback<PluginProps> = fp(
             })
           })
 
-        if (!allowed) {
+        if (!allowed.result) {
           throw new mercurius.ErrorWithProps('Not authorized', {
             code: 'NOT_AUTHORIZED',
           })
@@ -55,3 +57,9 @@ export const opaAuthPlugin: FastifyPluginCallback<PluginProps> = fp(
   },
   { name: 'opa-auth', dependencies: ['mercurius'] }
 )
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    opa: OpenPolicyAgentClient<Cache>
+  }
+}

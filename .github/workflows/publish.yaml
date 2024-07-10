@@ -5,7 +5,8 @@ on:
     types: [created]
 
 jobs:
-  publish:
+  publish-release:
+    if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,5 +20,23 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TREEDOM_NPMJS_TOKEN }}
+
+  publish-prerelease:
+    if: "github.event.release.prerelease"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          registry-url: 'https://registry.npmjs.org/'
+          node-version: '20.x'
+      - run: npm install
+      - run: npm run build
+      - run: npm publish --provenance --access public --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.TREEDOM_NPMJS_TOKEN }}

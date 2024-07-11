@@ -1,6 +1,6 @@
 {
   "name": "@treedom/mercurius-auth-opa",
-  "version": "2.0.0-rc0",
+  "version": "2.0.0",
   "main": "lib/index.js",
   "scripts": {
     "test": "borp",

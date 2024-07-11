@@ -80,11 +80,6 @@ app.register(opaAuthPlugin, {
 })
 ```
 
-## OPA Options
-
-This plugins uses Styra's `@styra/opa` SDK to perform queries to the OPA server. Its options can be changed via configuration.
-See the [official documentation](https://styrainc.github.io/opa-typescript/)
-
 ```typescript
 app.register(opaAuthPlugin, {
   // ...
@@ -93,11 +88,6 @@ app.register(opaAuthPlugin, {
   }
 })
 ```
-
-## Native Node.js fetch
-
-This plugin relies on `@styra/opa` which internally relies on _native Node.js fetch_ which is available as an **experimental**
-feature from _Node.js 16_ and as a **stable** feature in _Node.js 22_
 
 ## 🌳 Join Us in Making a Difference! 🌳
 

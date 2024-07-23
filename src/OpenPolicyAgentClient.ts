@@ -44,8 +44,8 @@ export class OpenPolicyAgentClient<TCache extends Cache> {
   ): Promise<TResponse> {
     let resourcePath = resource.replace(/\./gi, '/')
 
-    if (!resourcePath.startsWith('/')) {
-      resourcePath = `/${resourcePath}`
+    if (resourcePath.startsWith('/')) {
+      resourcePath = resourcePath.substring(1, resourcePath.length)
     }
 
     const cacheKey = getCacheKey(resourcePath, input)
@@ -56,7 +56,7 @@ export class OpenPolicyAgentClient<TCache extends Cache> {
     }
 
     const res = await request(
-      `${this.url}/${this.opaVersion}/data${resourcePath}`,
+      `${this.url}/${this.opaVersion}/data/${resourcePath}`,
       {
         method: this.method,
         body: input ? JSON.stringify({ input }) : undefined,

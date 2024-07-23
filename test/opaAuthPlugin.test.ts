@@ -172,3 +172,65 @@ query { ping(message: "pong") }
     ],
   })
 })
+
+test('authenticated query should succeed when opa path starts with slash', async () => {
+  const app = fastify({ logger: testLogger })
+
+  const schema = `#graphql
+${fs.readFileSync(path.join(__dirname, '../../../src/opaAuthDirective.gql'), 'utf-8')}
+type Query {
+ping(message: String!): String! @opa(path: "/query/ping", options: { bar: "foo", baz: 123, qux: true, bing: { bong: "doo" }, fl: 1.34, n: null, arr: [{a: "b"}, {c: "d"}] })
+}`
+
+  app.register(mercurius, {
+    schema,
+    resolvers: {
+      Query: {
+        ping: (source, args) => args.message,
+      },
+    },
+  })
+
+  app.register(opaAuthPlugin, {
+    opaOptions: {
+      url: 'http://opa.test:3000',
+    },
+  })
+
+  const opaPolicyMock = sinon
+    .stub<never, ReturnType<MockInterceptor.MockReplyOptionsCallback>>()
+    .returns({
+      statusCode: 200,
+      data: { result: true },
+      responseOptions: { headers: { 'Content-Type': 'application/json' } },
+    })
+
+  mockAgent
+    .get('http://opa.test:3000')
+    .intercept({
+      path: '/v1/data/query/ping',
+      method: 'POST',
+    })
+    .reply(opaPolicyMock)
+
+  const testClient = createMercuriusTestClient(app)
+  const response = await testClient.query(`#graphql
+    query { ping(message: "pong") }
+  `)
+
+  deepStrictEqual(response, { data: { ping: 'pong' } })
+
+  const body = JSON.parse(opaPolicyMock.firstCall?.firstArg?.body)
+
+  deepStrictEqual(body?.input?.args, { message: 'pong' })
+  deepStrictEqual(body?.input?.options, {
+    bar: 'foo',
+    baz: 123,
+    qux: true,
+    bing: { bong: 'doo' },
+    fl: 1.34,
+    n: null,
+    arr: [{ a: 'b' }, { c: 'd' }],
+  })
+})
+

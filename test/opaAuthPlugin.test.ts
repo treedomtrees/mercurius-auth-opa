@@ -233,4 +233,3 @@ ping(message: String!): String! @opa(path: "/query/ping", options: { bar: "foo",
     arr: [{ a: 'b' }, { c: 'd' }],
   })
 })
-
